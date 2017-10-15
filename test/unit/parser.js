@@ -411,9 +411,10 @@ describe('parse()', function () {
           var element = ast.elements[1];
           expect(element.type).to.equal("tagElement");
           expect(element.name).to.equal("0");
-          expect(element.children.length).to.equal(1);
-          expect(element.children[0].type).to.equal("messageTextElement");
-          expect(element.children[0].value).to.equal("click");
+          expect(element.value.type).to.equal("messageFormatPattern");
+          expect(element.value.elements).to.have.length(1);
+          expect(element.value.elements[0].type).to.equal("messageTextElement");
+          expect(element.value.elements[0].value).to.equal("click");
       });
 
       it('should contain a `selfClosingTagElement`', function () {
@@ -435,14 +436,16 @@ describe('parse()', function () {
           var element = ast.elements[0];
           expect(element.type).to.equal("tagElement");
           expect(element.name).to.equal("0");
-          expect(element.children.length).to.equal(2);
-          expect(element.children[0].type).to.equal("messageTextElement");
-          expect(element.children[0].value).to.equal("nested ");
-          expect(element.children[1].type).to.equal("tagElement");
-          expect(element.children[1].name).to.equal("1");
-          expect(element.children[1].children.length).to.equal(1);
-          expect(element.children[1].children[0].type).to.equal("messageTextElement");
-          expect(element.children[1].children[0].value).to.equal("tags");
+          expect(element.value.type).to.equal("messageFormatPattern");
+          expect(element.value.elements).to.have.length(2);
+          expect(element.value.elements[0].type).to.equal("messageTextElement");
+          expect(element.value.elements[0].value).to.equal("nested ");
+          expect(element.value.elements[1].type).to.equal("tagElement");
+          expect(element.value.elements[1].name).to.equal("1");
+          expect(element.value.elements[1].value.type).to.equal("messageFormatPattern");
+          expect(element.value.elements[1].value.elements).to.have.length(1);
+          expect(element.value.elements[1].value.elements[0].type).to.equal("messageTextElement");
+          expect(element.value.elements[1].value.elements[0].value).to.equal("tags");
       });
     });
 

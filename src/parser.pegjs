@@ -146,7 +146,7 @@ pluralStyle
 tagElement
     = balancedTagElement / selfClosingTagElement
 
-balancedTagElement = startTag:startTag children:messageFormatPattern endTag:endTag {
+balancedTagElement = startTag:startTag value:messageFormatPattern endTag:endTag {
   if (startTag !== endTag) {
     error('expected closing tag "' + startTag + '" but got "' + endTag + '"')
   }
@@ -154,7 +154,7 @@ balancedTagElement = startTag:startTag children:messageFormatPattern endTag:endT
   return {
     type: 'tagElement',
     name: startTag,
-    children: children.elements,
+    value: value,
   }
 }
 
