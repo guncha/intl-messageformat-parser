@@ -147,7 +147,7 @@ export default (function() {
                     location: location()
                 };
             },
-        peg$c35 = function(startTag, children, endTag) {
+        peg$c35 = function(startTag, value, endTag) {
           if (startTag !== endTag) {
             error('expected closing tag "' + startTag + '" but got "' + endTag + '"')
           }
@@ -155,7 +155,7 @@ export default (function() {
           return {
             type: 'tagElement',
             name: startTag,
-            children: children.elements,
+            value: value,
           }
         },
         peg$c36 = "<",
