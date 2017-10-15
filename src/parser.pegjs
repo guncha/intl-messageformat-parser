@@ -26,6 +26,7 @@ messageFormatPattern
 messageFormatElement
     = messageTextElement
     / argumentElement
+    / tagElement
 
 messageText
     = text:(_ chars _)+ {
@@ -142,6 +143,40 @@ pluralStyle
         };
     }
 
+tagElement
+    = balancedTagElement / selfClosingTagElement
+
+balancedTagElement = startTag:startTag children:messageFormatPattern endTag:endTag {
+  if (startTag !== endTag) {
+    error('expected closing tag "' + startTag + '" but got "' + endTag + '"')
+  }
+
+  return {
+    type: 'tagElement',
+    name: startTag,
+    children: children.elements,
+  }
+}
+
+startTag = "<" name:tagName ">" {
+  return name
+}
+
+endTag = "</" name:tagName ">" {
+  return name
+}
+
+selfClosingTagElement = "<" name:tagName "/>" {
+  return {
+    type: "selfClosingTagElement",
+    name: name,
+  }
+}
+
+tagName = chars:digit+ {
+  return chars.join("")
+}
+
 // -- Helpers ------------------------------------------------------------------
 
 ws 'whitespace' = [ \t\n\r]+
@@ -155,8 +190,9 @@ number = digits:('0' / $([1-9] digit*)) {
 }
 
 char
-    = [^{}\\\0-\x1F\x7f \t\n\r]
+    = [^<{}\\\0-\x1F\x7f \t\n\r]
     / '\\\\' { return '\\'; }
+    / '\\<'  { return '<'; }
     / '\\#'  { return '\\#'; }
     / '\\{'  { return '\u007B'; }
     / '\\}'  { return '\u007D'; }

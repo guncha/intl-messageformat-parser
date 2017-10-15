@@ -395,6 +395,65 @@ describe('parse()', function () {
         });
     });
 
+    describe('parse("Please <0>click</0> here for <1/>")', function () {
+      var msg = 'Please <0>click</0> here <1/>';
+      var ast = parse(msg);
+
+      it('should contain 4 `elements`', function () {
+          expect(ast.elements).to.have.length(4);
+          expect(ast.elements[0].type).to.equal("messageTextElement")
+          expect(ast.elements[1].type).to.equal("tagElement")
+          expect(ast.elements[2].type).to.equal("messageTextElement")
+          expect(ast.elements[3].type).to.equal("selfClosingTagElement")
+      });
+
+      it('should contain a `tagElement`', function () {
+          var element = ast.elements[1];
+          expect(element.type).to.equal("tagElement");
+          expect(element.name).to.equal("0");
+          expect(element.children.length).to.equal(1);
+          expect(element.children[0].type).to.equal("messageTextElement");
+          expect(element.children[0].value).to.equal("click");
+      });
+
+      it('should contain a `selfClosingTagElement`', function () {
+          var element = ast.elements[3];
+          expect(element.type).to.equal("selfClosingTagElement");
+          expect(element.name).to.equal("1");
+      });
+    });
+
+    describe('parse("<0>nested <1>tags</1></0>")', function () {
+      var msg = '<0>nested <1>tags</1></0>';
+      var ast = parse(msg);
+
+      it('should contain 1 `element`', function () {
+          expect(ast.elements).to.have.length(1);
+      });
+
+      it('should contain a `tagElement`', function () {
+          var element = ast.elements[0];
+          expect(element.type).to.equal("tagElement");
+          expect(element.name).to.equal("0");
+          expect(element.children.length).to.equal(2);
+          expect(element.children[0].type).to.equal("messageTextElement");
+          expect(element.children[0].value).to.equal("nested ");
+          expect(element.children[1].type).to.equal("tagElement");
+          expect(element.children[1].name).to.equal("1");
+          expect(element.children[1].children.length).to.equal(1);
+          expect(element.children[1].children[0].type).to.equal("messageTextElement");
+          expect(element.children[1].children[0].value).to.equal("tags");
+      });
+    });
+
+    describe('parse("<0>mismatched</1>")', function () {
+      var msg = '<0>mismatched</1>';
+
+      it('should throw an error', function () {
+        expect(parse).withArgs(msg).to.throwException();
+      });
+    });
+
     describe('whitespace', function () {
         it('should allow whitespace in and around `messageTextElement`s', function () {
             var msg = '   some random test   ';
@@ -418,6 +477,7 @@ describe('parse()', function () {
             expect(parse('\\{').elements[0].value).to.equal('{');
             expect(parse('\\}').elements[0].value).to.equal('}');
             expect(parse('\\u003C').elements[0].value).to.equal('<');
+            expect(parse('\\<').elements[0].value).to.equal('<');
 
             // Escaping "#" needs to be special-cased so it remains escaped so
             // the runtime doesn't replace it when in a `pluralFormat` option.
